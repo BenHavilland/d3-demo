@@ -51,7 +51,7 @@
     <div class="container-fluid text-center">
 
     <svg class="gameCanvas">
-      <circle class="hero" r="25"></circle>
+      <circle class="hero"></circle>
     </svg>
 
 
@@ -77,38 +77,43 @@
     <!-- SOME INLINE SHIT -->
     <script type="text/javascript">
       var gameCanvas = d3.select(".gameCanvas");
-      var enemyCount = 90;
       var windowWidth = window.innerWidth;
       var windowHeight = window.innerHeight;
+      var enemyCount = 90;
 
       gameCanvas.attr("width", windowWidth-200).attr("height", windowHeight-200);
-      canvasWidth = gameCanvas.attr("width");
-      canvasHeight = gameCanvas.attr("height");
+      var canvasWidth = gameCanvas.attr("width");
+      var canvasHeight = gameCanvas.attr("height");
+
+      var radius = 25;
+      var x = canvasWidth/2;
+      var y = canvasHeight/2
+      var heroData = [{x:x,y:y,r:radius}]
+      var hero = gameCanvas.select("circle.hero").data(heroData);
+
+      function dragFunction(d) {
+        console.log(d3.event);
+        d3.select(this)
+          .attr("cx", d3.event.x)
+          .attr("cy", d3.event.y);
+      }
 
       var createHero = function (){
-        var hero = gameCanvas.select(".hero");
         hero
           .style("fill","#62a88d")
-          .attr("cx", canvasWidth/2)
-          .attr("cy", canvasHeight/2);
+          .attr("r",radius)
+          .attr("cx", x)
+          .attr("cy", y);
+
+      //hero.on("drag", dragFunction);
       }
 
       var createEnemies = function (enemyNumber){
-
-        /* var data = [{"id":1,"x":getRandomInt(canvasWidth),"y":getRandomInt(canvasHeight)},
-        {"id":2,"x":getRandomInt(canvasWidth),"y":getRandomInt(canvasHeight)},
-        {"id":3,"x":getRandomInt(canvasWidth),"y":getRandomInt(canvasHeight)}];
-        console.log(data);*/
-
-
-        
         var enemies = [];
         for (var enemy = 0; enemy < enemyNumber; enemy++) {
           enemies.push({"id":enemy,"x":getRandomInt(canvasWidth),"y":getRandomInt(canvasHeight)});
         }
-
         return enemies;
-      
       }
 
       var placeEnemies = function (data) {
@@ -129,20 +134,23 @@
             .attr("cx", function() { return getRandomInt(canvasWidth); })
             .attr("cy", function() { return getRandomInt(canvasHeight); });
         }
-
         setInterval( shakeDown, 2000 );
-
       }
 
       // UTILS
-
       var getRandomInt = function(max) {
         return Math.floor(Math.random() * (max - 0)) + 0;
       }
+      // END UTILS
 
       createHero();
       var enemies = createEnemies(enemyCount);
       placeEnemies(enemies);
+
+      var drag = d3.behavior.drag()
+        .origin(function(d) { return d; })
+        .on("drag",dragFunction);
+        hero.call(drag);
 
     </script>
   </body>
